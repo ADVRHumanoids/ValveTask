@@ -181,14 +181,12 @@ namespace myfsm{
 
 
         Eigen::Affine3d             left_hand_pose_Affine_,         right_hand_pose_Affine_;
-        geometry_msgs::Pose         left_hand_pose_Pose_,           right_hand_pose_Pose_;
         geometry_msgs::PoseStamped  left_hand_pose_PoseStamped_,    right_hand_pose_PoseStamped_;
 
 
 
 
         Eigen::Affine3d             left_hand_pose_home_Affine_,            right_hand_pose_home_Affine_;
-        geometry_msgs::Pose         left_hand_pose_home_Pose_,              right_hand_pose_home_Pose_;
         geometry_msgs::PoseStamped  left_hand_pose_home_PoseStamped_,       right_hand_pose_home_PoseStamped_;
 
 
@@ -206,11 +204,9 @@ namespace myfsm{
             robot_->model().getPose("LSoftHand", left_hand_pose_Affine_);
             robot_->model().getPose("RSoftHand", right_hand_pose_Affine_);
 
-            tf::poseEigenToMsg (left_hand_pose_Affine_, left_hand_pose_Pose_);
-            tf::poseEigenToMsg (right_hand_pose_Affine_, right_hand_pose_Pose_);
+            tf::poseEigenToMsg (left_hand_pose_Affine_,  left_hand_pose_PoseStamped_.pose );
+            tf::poseEigenToMsg (right_hand_pose_Affine_, right_hand_pose_PoseStamped_.pose);
 
-            left_hand_pose_PoseStamped_.pose = left_hand_pose_Pose_;
-            right_hand_pose_PoseStamped_.pose = right_hand_pose_Pose_;
 
         }
 
@@ -218,17 +214,12 @@ namespace myfsm{
         bool home_recoreded_ = false;
 
         void recordHome(){
-
+            std::cout << "Home Recorded!" << std::endl;
                 left_hand_pose_home_Affine_ = left_hand_pose_Affine_;
                 right_hand_pose_home_Affine_ = right_hand_pose_Affine_;
 
-                left_hand_pose_home_Pose_ = left_hand_pose_Pose_;
-                right_hand_pose_home_Pose_ = right_hand_pose_Pose_;
-
                 left_hand_pose_home_PoseStamped_ = left_hand_pose_PoseStamped_;
                 right_hand_pose_home_PoseStamped_ = right_hand_pose_PoseStamped_;
-
-                home_recoreded_ = true;
 
         }
 
