@@ -91,7 +91,7 @@ def getValveHandlePoseWrtWorldOdom():
     # define valve handle wrt valve model base
     # valve_Translation_handle = trans.translation_matrix(np.array([0.2, 0.0, 1.2]))
 
-    walkman_palm_length = 0.1
+    walkman_palm_length = 0.175
     handle_shift_up = 0.2
     valve_Translation_handle = trans.translation_matrix(np.array([0.2+walkman_palm_length, 0.0, 1.2+handle_shift_up]))
     valve_Rotation_handle = trans.euler_matrix(0.0,-np.pi/2,np.pi,'sxyz')
