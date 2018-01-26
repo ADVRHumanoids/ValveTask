@@ -68,7 +68,7 @@ def getValveHandlePoseWrtWorldOdom():
     if valve_pose_msg.success is True:
         print("Got valve pose!")
         ground_Trans_valve = poseToMatrix(valve_pose_msg.pose)
-        print(ground_Trans_valve[:3,3])
+        # print(ground_Trans_valve[:3,3])
     else:
         print("Fail to get valve pose!")
 
@@ -77,7 +77,7 @@ def getValveHandlePoseWrtWorldOdom():
     if walkman_pose_msg.success is True:
         print("Got walkman pose!")
         ground_Trans_walkman = poseToMatrix(walkman_pose_msg.pose)
-        print(ground_Trans_walkman[:3, 3])
+        # print(ground_Trans_walkman[:3, 3])
     else:
         print("Fail to get walkman pose!")
 
@@ -91,7 +91,7 @@ def getValveHandlePoseWrtWorldOdom():
     # define valve handle wrt valve model base
     # valve_Translation_handle = trans.translation_matrix(np.array([0.2, 0.0, 1.2]))
 
-    walkman_palm_length = 0.175
+    walkman_palm_length = 0.15
     handle_shift_up = 0.2
     valve_Translation_handle = trans.translation_matrix(np.array([0.2+walkman_palm_length, 0.0, 1.2+handle_shift_up]))
     valve_Rotation_handle = trans.euler_matrix(0.0,-np.pi/2,np.pi,'sxyz')

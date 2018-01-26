@@ -67,16 +67,6 @@ bool ValveTask::init_control_plugin(XBot::Handle::Ptr handle)
     fsm.shared_data()._robot= _robot;
     fsm.shared_data().robot_ = _robot;
 
-//    fsm.register_state(std::make_shared<myfsm::HandSelection>());
-//    fsm.register_state(std::make_shared<myfsm::LeftHoming>());
-//    fsm.register_state(std::make_shared<myfsm::Reached>());
-//    fsm.register_state(std::make_shared<myfsm::Grasped>());
-//    fsm.register_state(std::make_shared<myfsm::Picked>());
-//    fsm.register_state(std::make_shared<myfsm::PickSecondHand>());
-//    fsm.register_state(std::make_shared<myfsm::MovedAway>());
-//    fsm.register_state(std::make_shared<myfsm::PlacedDown>());
-//    fsm.register_state(std::make_shared<myfsm::Ungrasped>());
-
 
     /*Registers states*/
     fsm.register_state(std::make_shared<myfsm::Homing>());

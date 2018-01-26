@@ -161,16 +161,16 @@ void myfsm::Homing::entry(const XBot::FSM::Message& msg){
     std::cout << "Move to home pose!" << std::endl;
 
 
-    // blocking call: wait for a pose on topic debris_pose
-    std::cout << "Please define the pose of the valve!" << std::endl;
-//    ADVR_ROS::im_pose_msg::ConstPtr tmp;
-//    tmp = ros::topic::waitForMessage<ADVR_ROS::im_pose_msg>("valve_pose");
-//    shared_data()._valve_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(tmp->pose_stamped));
-
-    geometry_msgs::PoseStampedConstPtr temp;
-    temp = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("valve_pose");
-    shared_data().valve_pose_ = *temp;
-//    shared_data()._valve_pose = &shared_data().valve_pose_;
+//    // blocking call: wait for a pose on topic debris_pose
+//    std::cout << "Please define the pose of the valve!" << std::endl;
+////    ADVR_ROS::im_pose_msg::ConstPtr tmp;
+////    tmp = ros::topic::waitForMessage<ADVR_ROS::im_pose_msg>("valve_pose");
+////    shared_data()._valve_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(tmp->pose_stamped));
+//
+//    geometry_msgs::PoseStampedConstPtr temp;
+//    temp = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("valve_pose");
+//    shared_data().valve_pose_ = *temp;
+////    shared_data()._valve_pose = &shared_data().valve_pose_;
 
 
 //    std::cout << "Please define the pose of the valve center!" << std::endl;
@@ -235,7 +235,18 @@ void myfsm::ValveReach::entry(const XBot::FSM::Message& msg){
     std::cout << "ValveReach::entry()" << std::endl;
 
     shared_data().plugin_status->setStatus("VALVEREACH");
-      
+
+    // blocking call: wait for a pose on topic debris_pose
+    std::cout << "Please define the pose of the valve!" << std::endl;
+//    ADVR_ROS::im_pose_msg::ConstPtr tmp;
+//    tmp = ros::topic::waitForMessage<ADVR_ROS::im_pose_msg>("valve_pose");
+//    shared_data()._valve_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(tmp->pose_stamped));
+
+    geometry_msgs::PoseStampedConstPtr temp;
+    temp = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("valve_pose");
+    shared_data().valve_pose_ = *temp;
+//    shared_data()._valve_pose = &shared_data().valve_pose_;
+
 
 //    std::cout << "Select the End Effector you want to use." << std::endl;
     
@@ -493,17 +504,20 @@ void myfsm::ValveTurn::entry(const XBot::FSM::Message& msg){
     
     if(selectedHand == "RSoftHand"){
         last_frame.pose.position.y+=VALVE_RADIUSE;
-	last_frame.pose.position.z-=VALVE_RADIUSE;
+	    last_frame.pose.position.z-=VALVE_RADIUSE;
     }
     if(selectedHand == "LSoftHand"){
         last_frame.pose.position.y-=VALVE_RADIUSE;
-	last_frame.pose.position.z-=VALVE_RADIUSE;
+	    last_frame.pose.position.z-=VALVE_RADIUSE;
     }
 
     last_frame.pose.orientation = end_frame.pose.orientation;
 
 
-    shared_data()._last_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(last_frame));
+    shared_data().updateRobotStates();
+
+
+    shared_data()._last_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(shared_data().right_hand_pose_PoseStamped_));
   
 
   

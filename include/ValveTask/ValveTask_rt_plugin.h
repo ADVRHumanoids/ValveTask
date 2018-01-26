@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef DebrisRemovalTask_H_
-#define DebrisRemovalTask_PLUGIN_H_
+#ifndef ValveTask_PLUGIN_H_
+#define ValveTask_PLUGIN_H_
 
 #include <XCM/XBotControlPlugin.h>
 #include "fsm_definition.h"
@@ -33,7 +33,7 @@
 namespace XBotPlugin {
 
 /**
- * @brief DebrisRemovalTask XBot RT Plugin
+ * @brief ValveTask XBot RT Plugin
  *
  **/
 class ValveTask : public XBot::XBotControlPlugin
@@ -74,4 +74,4 @@ private:
 
 }
 
-#endif // DebrisRemovalTask_PLUGIN_H_
+#endif // ValveTask_PLUGIN_H_
