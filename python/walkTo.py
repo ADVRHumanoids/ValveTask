@@ -23,6 +23,8 @@ cmd_type = {'WalkFront': 1,
             'TurnLeft': 5,
             'TurnRight': 6}
 
+turn_threshold = 0.5 #deg
+walk_threshold = 0.05 #m
 
 
 def get_model_state(model_name):
@@ -137,7 +139,7 @@ if __name__ == "__main__":
         world_facing_yaw_goal = world_State_walkman['rpy'][2] + turn_angle
         world_facing_yaw_goal = angles.normalize_angle(world_facing_yaw_goal)
         world_State_walkman = get_walkman_state()
-        while np.abs(world_State_walkman['rpy'][2] - world_facing_yaw_goal) > np.deg2rad(0.5):
+        while np.abs(world_State_walkman['rpy'][2] - world_facing_yaw_goal) > np.deg2rad(turn_threshold):
             world_State_walkman = get_walkman_state()
             # print("robot yaw: ", world_State_walkman['rpy'][2], "world_facing_yaw_goal: ", world_facing_yaw_goal)
             # print("yaw error: ", np.abs(world_State_walkman['rpy'][2] - world_facing_yaw_goal))
@@ -158,7 +160,7 @@ if __name__ == "__main__":
         walkman_T_goal = np.linalg.inv(world_State_walkman['transformation_matrix']).dot(world_T_goal)
         walkman_P_goal = walkman_T_goal[:3, -1]
         walkman_R_goal = walkman_T_goal[:3, :3]
-        while np.abs(np.linalg.norm(walkman_P_goal[:2])) > 0.05:
+        while np.abs(np.linalg.norm(walkman_P_goal[:2])) > walk_threshold:
             world_State_walkman = get_walkman_state()
             walkman_T_goal = np.linalg.inv(world_State_walkman['transformation_matrix']).dot(world_T_goal)
             walkman_P_goal = walkman_T_goal[:3, -1]
@@ -184,7 +186,7 @@ if __name__ == "__main__":
         # check whether goal yaw is reached
 
         world_State_walkman = get_walkman_state()
-        while np.abs(world_State_walkman['rpy'][2] - world_yaw_goal) > np.deg2rad(0.1):
+        while np.abs(world_State_walkman['rpy'][2] - world_yaw_goal) > np.deg2rad(turn_threshold):
             world_State_walkman = get_walkman_state()
             # print("yaw error: ", np.deg2rad(np.abs(world_State_walkman['rpy'][2] - world_Yaw_goal)))
         rospy.sleep(4)
