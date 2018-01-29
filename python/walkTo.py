@@ -10,6 +10,7 @@ usage:
 import tf
 import sys
 import rospy
+import angles
 import numpy as np
 import tf.transformations as trans
 from ADVR_ROS.srv import *
@@ -22,47 +23,6 @@ cmd_type = {'WalkFront': 1,
             'TurnLeft': 5,
             'TurnRight': 6}
 
-
-def poseToPositionQuaternion(pose):
-    position = np.array([pose.position.x,
-                         pose.position.y,
-                         pose.position.z])
-
-    orientation = np.array([pose.orientation.x,
-                            pose.orientation.y,
-                            pose.orientation.z,
-                            pose.orientation.w])
-    return position, orientation
-
-
-def poseToMatrix(pose):
-    position = np.array([pose.position.x,
-                         pose.position.y,
-                         pose.position.z])
-    translation_matrix = trans.translation_matrix(position)
-    orientation = np.array([pose.orientation.x,
-                            pose.orientation.y,
-                            pose.orientation.z,
-                            pose.orientation.w])
-    rotation_matrix = trans.quaternion_matrix(orientation)
-    transformation_matrix = translation_matrix.dot(rotation_matrix)
-    return transformation_matrix
-
-
-def matrixToPose(Trans):
-    position = Trans[0:3, 3]
-    orientation = trans.quaternion_from_matrix(Trans)
-
-    pose = geometry_msgs.msg.Pose()
-    pose.position.x = position[0]
-    pose.position.y = position[1]
-    pose.position.z = position[2]
-
-    pose.orientation.x = orientation[0]
-    pose.orientation.y = orientation[1]
-    pose.orientation.z = orientation[2]
-    pose.orientation.w = orientation[3]
-    return pose
 
 
 def get_model_state(model_name):
@@ -142,6 +102,7 @@ if __name__ == "__main__":
         world_x_goal = float(sys.argv[1])
         world_y_goal = float(sys.argv[2])
         world_yaw_goal = np.deg2rad(float(sys.argv[3]))
+        world_yaw_goal = angles.normalize_angle(world_yaw_goal)
 
         # generate desired frame wrt world
         world_translation_goal = trans.translation_matrix(np.array([world_x_goal, world_y_goal, 0.0]))
@@ -173,11 +134,13 @@ if __name__ == "__main__":
             responce_1 = walking_srv_client('TurnRight', quantity=np.rad2deg(turn_angle))
 
         # check whether goal yaw is reached
-        world_Yaw_goal = world_State_walkman['rpy'][2] + turn_angle
+        world_facing_yaw_goal = world_State_walkman['rpy'][2] + turn_angle
+        world_facing_yaw_goal = angles.normalize_angle(world_facing_yaw_goal)
         world_State_walkman = get_walkman_state()
-        while np.abs(world_State_walkman['rpy'][2] - world_Yaw_goal) > np.deg2rad(0.1):
+        while np.abs(world_State_walkman['rpy'][2] - world_facing_yaw_goal) > np.deg2rad(0.5):
             world_State_walkman = get_walkman_state()
-            # print("yaw error: ", np.deg2rad(np.abs(world_State_walkman['rpy'][2] - world_Yaw_goal)))
+            print("robot yaw: ", world_State_walkman['rpy'][2], "world_facing_yaw_goal: ", world_facing_yaw_goal)
+            # print("yaw error: ", np.abs(world_State_walkman['rpy'][2] - world_facing_yaw_goal))
         rospy.sleep(4)
 
 
