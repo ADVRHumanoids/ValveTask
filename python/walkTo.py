@@ -139,7 +139,7 @@ if __name__ == "__main__":
         world_State_walkman = get_walkman_state()
         while np.abs(world_State_walkman['rpy'][2] - world_facing_yaw_goal) > np.deg2rad(0.5):
             world_State_walkman = get_walkman_state()
-            print("robot yaw: ", world_State_walkman['rpy'][2], "world_facing_yaw_goal: ", world_facing_yaw_goal)
+            # print("robot yaw: ", world_State_walkman['rpy'][2], "world_facing_yaw_goal: ", world_facing_yaw_goal)
             # print("yaw error: ", np.abs(world_State_walkman['rpy'][2] - world_facing_yaw_goal))
         rospy.sleep(4)
 
@@ -189,6 +189,17 @@ if __name__ == "__main__":
             # print("yaw error: ", np.deg2rad(np.abs(world_State_walkman['rpy'][2] - world_Yaw_goal)))
         rospy.sleep(4)
 
+
+        # print the error [error_x, error_y, error_yaw]
+        world_State_walkman = get_walkman_state()
+        walkman_P_goal = walkman_T_goal[:3, -1]
+        walkman_R_goal = walkman_T_goal[:3, :3]
+        walkman_RPY_goal = trans.euler_from_matrix(walkman_R_goal)
+
+        print("Global Error!")
+        print("error_x: ", world_State_walkman['position'][0]-world_x_goal, "m")
+        print("error_y: ", world_State_walkman['position'][1] - world_y_goal, "m")
+        print("error_yaw: ", np.rad2deg(angles.normalize_angle(world_State_walkman['rpy'][2]-world_yaw_goal)), "deg")
 
     else:
         print(usage())
