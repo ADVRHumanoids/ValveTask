@@ -109,8 +109,8 @@ void myfsm::Homing::entry(const XBot::FSM::Message& msg){
     right_hand_pose_stamped_task_home.pose.orientation.z = right_hand_task_home_quaternion.z();
     right_hand_pose_stamped_task_home.pose.orientation.w = right_hand_task_home_quaternion.w();
 
-//    shared_data().left_hand_pose_home_PoseStamped_ = left_hand_pose_stamped_task_home;
-//    shared_data().right_hand_pose_home_PoseStamped_ = right_hand_pose_stamped_task_home;
+    shared_data().left_hand_pose_home_PoseStamped_ = left_hand_pose_stamped_task_home;
+    shared_data().right_hand_pose_home_PoseStamped_ = right_hand_pose_stamped_task_home;
 
 //    std::cout << "left_hand_pose_stamped_task_home: " << left_hand_pose_stamped_task_home.pose.position << std::endl;
 //    std::cout << "right_hand_pose_stamped_task_home: " << right_hand_pose_stamped_task_home.pose.position << std::endl;
