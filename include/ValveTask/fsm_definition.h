@@ -232,6 +232,13 @@ namespace myfsm{
         geometry_msgs::PoseStamped last_pose_PoseStamped_;
 
 
+
+        Eigen::Affine3d valve_Affine_            ;
+        Eigen::Affine3d valve_approach_Affine_   ;
+        Eigen::Affine3d valve_turned_Affine_     ;
+        Eigen::Affine3d valve_retreat_Affine_    ;
+
+
         // valve model parameters needed to calculate those key poses
         double handel_length_ = 0.3;
         Eigen::Vector3d valve_center_position_wrt_base_ = Eigen::Vector3d(0.1, 0.0, 1.2);
@@ -242,38 +249,38 @@ namespace myfsm{
 
 
             // transform all pose to affine
-            Eigen::Affine3d valve_Affine            = Eigen::Affine3d::Identity();;
-            Eigen::Affine3d valve_approach_Affine   = Eigen::Affine3d::Identity();;
-            Eigen::Affine3d valve_turned_Affine     = Eigen::Affine3d::Identity();;
-            Eigen::Affine3d valve_retreat_Affine    = Eigen::Affine3d::Identity();;
+            valve_Affine_            = Eigen::Affine3d::Identity();
+            valve_approach_Affine_   = Eigen::Affine3d::Identity();
+            valve_turned_Affine_     = Eigen::Affine3d::Identity();
+            valve_retreat_Affine_    = Eigen::Affine3d::Identity();
 
-            tf::poseMsgToEigen(valve_pose_.pose, valve_Affine);
-            tf::poseMsgToEigen(valve_approach_pose_.pose, valve_approach_Affine);
-            tf::poseMsgToEigen(valve_turned_pose_.pose, valve_turned_Affine);
-            tf::poseMsgToEigen(valve_retreat_pose_.pose, valve_retreat_Affine);
+            tf::poseMsgToEigen(valve_pose_.pose, valve_Affine_);
+            tf::poseMsgToEigen(valve_approach_pose_.pose, valve_approach_Affine_);
+            tf::poseMsgToEigen(valve_turned_pose_.pose, valve_turned_Affine_);
+            tf::poseMsgToEigen(valve_retreat_pose_.pose, valve_retreat_Affine_);
 
             // calculate all affine
             // valve_approach
             Eigen::Affine3d approach_shift = Eigen::Affine3d::Identity();
             approach_shift.translation() = Eigen::Vector3d(0.0, -APPROCHING_SHIFT, 0.0);
-            valve_approach_Affine = valve_Affine*approach_shift;
+            valve_approach_Affine_ = valve_Affine_*approach_shift;
 
             // valve_turned
             Eigen::Affine3d turn = Eigen::Affine3d::Identity();
             turn.translate(Eigen::Vector3d(0.0, VALVE_RADIUSE, -VALVE_RADIUSE));
-            turn.rotate(Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitX()));
-            valve_turned_Affine = valve_Affine*turn;
+            turn.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitZ()));
+            valve_turned_Affine_ = valve_Affine_*turn;
 
             // valve_retreat
             Eigen::Affine3d retreat_shift = Eigen::Affine3d::Identity();
             retreat_shift.translation() = Eigen::Vector3d(0.0, -RETREAT_SHIFT, 0.0);
-            valve_retreat_Affine = valve_turned_Affine*retreat_shift;
+            valve_retreat_Affine_ = valve_turned_Affine_*retreat_shift;
 
 
             // transfer data back
-            tf::poseEigenToMsg(valve_approach_Affine, valve_approach_pose_.pose);
-            tf::poseEigenToMsg(valve_turned_Affine, valve_turned_pose_.pose);
-            tf::poseEigenToMsg(valve_retreat_Affine, valve_retreat_pose_.pose);
+            tf::poseEigenToMsg(valve_approach_Affine_, valve_approach_pose_.pose);
+            tf::poseEigenToMsg(valve_turned_Affine_, valve_turned_pose_.pose);
+            tf::poseEigenToMsg(valve_retreat_Affine_, valve_retreat_pose_.pose);
 
         }
 

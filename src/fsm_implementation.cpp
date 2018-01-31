@@ -355,91 +355,85 @@ void myfsm::ValveTurn::entry(const XBot::FSM::Message& msg){
       
 
 
-    std::string selectedHand = shared_data().selectedHand_;
-
-
 
     // define the start frame 
-    geometry_msgs::PoseStamped start_frame;
-    start_frame = shared_data().valve_pose_;
+//    geometry_msgs::PoseStamped start_frame;
+//    start_frame = shared_data().valve_pose_;
 
-    trajectory_utils::Cartesian start;
-    start.distal_frame = selectedHand;
-    start.frame = shared_data().valve_pose_;
+
     
     // define the end frame
-    double rot = M_PI_2;
+//    double rot = M_PI_2;
 
 
 
-    KDL::Frame end_frame_kdl;
-    end_frame_kdl.Identity();
-    end_frame_kdl.M = end_frame_kdl.M.Quaternion(start_frame.pose.orientation.x,
-    start_frame.pose.orientation.y, start_frame.pose.orientation.z,
-    start_frame.pose.orientation.w);
-    end_frame_kdl.M.DoRotZ(rot);
+//    KDL::Frame end_frame_kdl;
+//    end_frame_kdl.Identity();
+//    end_frame_kdl.M = end_frame_kdl.M.Quaternion(start_frame.pose.orientation.x,
+//    start_frame.pose.orientation.y, start_frame.pose.orientation.z,
+//    start_frame.pose.orientation.w);
+//    end_frame_kdl.M.DoRotZ(rot);
+//
+//    std_msgs::Float32 angle_rot;
+//    angle_rot.data = rot;
     
-    std_msgs::Float32 angle_rot;
-    angle_rot.data = rot;
-    
-    geometry_msgs::PoseStamped end_frame;
-    double qx,qy,qz,qw;
-    end_frame_kdl.M.GetQuaternion(qx,qy,qz,qw);
-    end_frame.pose.orientation.x = qx;
-    end_frame.pose.orientation.y = qy;
-    end_frame.pose.orientation.z = qz;
-    end_frame.pose.orientation.w = qw;
+//    geometry_msgs::PoseStamped end_frame;
+//    double qx,qy,qz,qw;
+//    end_frame_kdl.M.GetQuaternion(qx,qy,qz,qw);
+//    end_frame.pose.orientation.x = qx;
+//    end_frame.pose.orientation.y = qy;
+//    end_frame.pose.orientation.z = qz;
+//    end_frame.pose.orientation.w = qw;
 
-    // define new end frame
-    Eigen::Affine3d start_frame_Affine;
-    tf::poseMsgToEigen(start_frame.pose, start_frame_Affine);
+//    // define new end frame
+//    Eigen::Affine3d start_frame_Affine;
+//    tf::poseMsgToEigen(start_frame.pose, start_frame_Affine);
 
-                       
-//    Eigen::Matrix3d R_positive90_about_z;
-//    Eigen::Matrix3d R_negative90_about_z;
-//    R_positive90_about_z = Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitZ());
-//    R_negative90_about_z = Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitZ());
-
-
-    Eigen::Affine3d T_positive90_about_z = Eigen::Affine3d::Identity();
-    Eigen::Affine3d T_negative90_about_z = Eigen::Affine3d::Identity();
-    T_positive90_about_z.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitZ()));
-    T_negative90_about_z.rotate(Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitZ()));
-
-    Eigen::Affine3d end_frame_Affine;
-    end_frame_Affine = start_frame_Affine*T_positive90_about_z;
+//
+////    Eigen::Matrix3d R_positive90_about_z;
+////    Eigen::Matrix3d R_negative90_about_z;
+////    R_positive90_about_z = Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitZ());
+////    R_negative90_about_z = Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitZ());
+//
+//
+//    Eigen::Affine3d T_positive90_about_z = Eigen::Affine3d::Identity();
+//    Eigen::Affine3d T_negative90_about_z = Eigen::Affine3d::Identity();
+//    T_positive90_about_z.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitZ()));
+//    T_negative90_about_z.rotate(Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitZ()));
+//
+//    Eigen::Affine3d end_frame_Affine;
+//    end_frame_Affine = start_frame_Affine*T_positive90_about_z;
+//
 
 
+//    Eigen::Vector3d plane_normal_Vector;
+//    plane_normal_Vector[0] = shared_data().valve_Affine_.rotation()(0,2);
+//    plane_normal_Vector[1] = shared_data().valve_Affine_.rotation()(1,2);
+//    plane_normal_Vector[2] = shared_data().valve_Affine_.rotation()(2,2);
 
-    Eigen::Vector3d plane_normal_Vector;
-    plane_normal_Vector[0] = start_frame_Affine.rotation()(0,2);
-    plane_normal_Vector[1] = start_frame_Affine.rotation()(1,2);
-    plane_normal_Vector[2] = start_frame_Affine.rotation()(2,2);
+
+
+    trajectory_utils::Cartesian start;
+    start.distal_frame = shared_data().selectedHand_;
+    start.frame = shared_data().valve_pose_;
+
+    trajectory_utils::Cartesian end;
+    end.distal_frame = shared_data().selectedHand_;
+    end.frame = shared_data().valve_turned_pose_;
+
 
     geometry_msgs::Vector3 plane_normal;
-    plane_normal.x = plane_normal_Vector[0];
-    plane_normal.y = plane_normal_Vector[1];
-    plane_normal.z = plane_normal_Vector[2];
+    plane_normal.x = shared_data().valve_Affine_.rotation()(0,2);  
+    plane_normal.y = shared_data().valve_Affine_.rotation()(1,2);  
+    plane_normal.z = shared_data().valve_Affine_.rotation()(2,2);  
 
-
-
-//     if(selectedHand == "LSoftHand"){
-//            plane_normal.x = 1;
-//     }
     
     geometry_msgs::Vector3 circle_center;
-    circle_center.x = start_frame.pose.position.x;
-    circle_center.y = start_frame.pose.position.y;
-    circle_center.z = start_frame.pose.position.z-VALVE_RADIUSE;
+    circle_center.x = shared_data().valve_pose_.pose.position.x;
+    circle_center.y = shared_data().valve_pose_.pose.position.y;
+    circle_center.z = shared_data().valve_pose_.pose.position.z-VALVE_RADIUSE;
     
-    
-    
-    trajectory_utils::Cartesian end;
-    end.distal_frame = selectedHand;
-    end.frame = end_frame;
 
-    shared_data()._last_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(end_frame));
-    
     // define the first segment
     trajectory_utils::segment s1;
     s1.type.data = 1;        // arc traj
@@ -447,7 +441,7 @@ void myfsm::ValveTurn::entry(const XBot::FSM::Message& msg){
     s1.start = start;        // start pose
     //s1.end = end;            // end pose 
     s1.end_rot = end.frame.pose.orientation;
-    s1.angle_rot = angle_rot;
+    s1.angle_rot.data = M_PI_2;
     s1.circle_center = circle_center;
     s1.plane_normal = plane_normal;
     
@@ -547,10 +541,10 @@ void myfsm::ValveGoBack::entry(const XBot::FSM::Message& msg){
 
     // define the start frame 
     geometry_msgs::PoseStamped start_frame;
-    start_frame = *shared_data()._last_pose;
+    start_frame = shared_data().valve_turned_pose_;
 
-    shared_data().updateRobotStates();
-    start_frame = shared_data().right_hand_pose_PoseStamped_;
+//    shared_data().updateRobotStates();
+//    start_frame = shared_data().right_hand_pose_PoseStamped_;
 
 
     trajectory_utils::Cartesian start;
@@ -559,7 +553,7 @@ void myfsm::ValveGoBack::entry(const XBot::FSM::Message& msg){
     
     // define the intermediate frame
     geometry_msgs::PoseStamped intermediate_frame;
-    intermediate_frame = shared_data().valve_pose_;
+    intermediate_frame = shared_data().valve_retreat_pose_;
 
     
     trajectory_utils::Cartesian intermediate;
@@ -589,8 +583,8 @@ void myfsm::ValveGoBack::entry(const XBot::FSM::Message& msg){
 //    end.distal_frame = selectedHand;
 //    end.frame = end_frame;
 
-    shared_data().updateRobotStates();
-    shared_data()._last_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(shared_data().right_hand_pose_PoseStamped_));
+//    shared_data().updateRobotStates();
+//    shared_data()._last_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(shared_data().right_hand_pose_PoseStamped_));
 
 //    // define the second segment
 //    trajectory_utils::segment s2;
