@@ -1,4 +1,4 @@
-**Valve Task**
+**Valve Task - How to guide**
 
 **Set xbot config**
 ```
@@ -29,5 +29,63 @@ taskset -c 0 XBotGUI
 ```
 ./pubValvePoseWrtWorldOdom.py
 ```
-           
+
+Pub valve pose in Gazebo:
+
+```
+./advr-superbuild/external/ValveTask/python/pubValvePoseWrtWorldOdom.py
+```
+
+Pub valve pose (for right hand):
+```
+rostopic pub /valve_pose ADVR_ROS/im_pose_msg "name: ''
+pose_stamped:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  pose:
+    position:
+      x: 0.8
+      y: -0.4
+      z: 1.40
+    orientation:
+      x: 0.0
+      y: -0.7071070192004544
+      z: 0.0
+      w: 0.7071070192004544"
+```
+
+----------------------------------------------------------------------------
+
+Pub valve pose (for left hand):
+```
+rostopic pub /valve_pose ADVR_ROS/im_pose_msg "name: ''
+pose_stamped:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  pose:
+    position:
+      x: 0.9
+      y: 0.4
+      z: 1.40
+    orientation:
+      x: 0.0
+      y: -0.7071070192004544
+      z: 0.0
+      w: 0.7071070192004544"
+```
+       
 4) press on button _success_ or _fail_ to make finite state machine transits to next state.
+
+
+**Note**
+1) Stop any other plugins before starting this plugin.
+2) By default, the robot use its right hand to do the job, so put you robot in a comfortable position for the operation!
+
