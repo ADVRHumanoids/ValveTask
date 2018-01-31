@@ -17,7 +17,7 @@ NRTDeployer
 ```
 
 ```
-XBotGUI
+taskset -c 0 XBotGUI
 ```
 
 
