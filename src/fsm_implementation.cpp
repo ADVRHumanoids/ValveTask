@@ -245,75 +245,54 @@ void myfsm::ValveReach::entry(const XBot::FSM::Message& msg){
 
 
 
-
+    shared_data().calcValveKeyPoses();
 
 
 
     //CALL SERVICE TO MOVE
 
-    // define the start frame 
-    geometry_msgs::PoseStamped start_frame;
-    if(shared_data().selectedHand_ == "RSoftHand")
-      start_frame = shared_data().right_hand_pose_home_PoseStamped_;
-    else if(shared_data().selectedHand_ == "LSoftHand")
-      start_frame = shared_data().left_hand_pose_home_PoseStamped_;
-
     trajectory_utils::Cartesian start;
     start.distal_frame = shared_data().selectedHand_;
-    start.frame = start_frame;    
+    start.frame = shared_data().right_hand_pose_home_PoseStamped_;
     
-    // define the intermediate frame
-    geometry_msgs::PoseStamped intermediate_frame;
-    intermediate_frame = shared_data().valve_pose_;
+//    // define the intermediate frame
+//    geometry_msgs::PoseStamped intermediate_frame;
+//    intermediate_frame = shared_data().valve_pose_;
+//    // intermediate frame is shifted from valve pose
+//    Eigen::Affine3d intermediate_frame_Affine;
+//    tf::poseMsgToEigen(intermediate_frame.pose, intermediate_frame_Affine);
+//    Eigen::Affine3d shift = Eigen::Affine3d::Identity();
+//    shift.translation() = Eigen::Vector3d(0.0, -APPROCHING_SHIFT, 0.0);
+//    intermediate_frame_Affine = intermediate_frame_Affine*shift;
+//    tf::poseEigenToMsg(intermediate_frame_Affine, intermediate_frame.pose);
 
-    // intermediate frame is shifted
-    Eigen::Affine3d intermediate_frame_Affine;
-    tf::poseMsgToEigen(intermediate_frame.pose, intermediate_frame_Affine);
-    Eigen::Affine3d shift = Eigen::Affine3d::Identity();
-    shift.translation() = Eigen::Vector3d(0.0, -APPROCHING_SHIFT, 0.0);
-    intermediate_frame_Affine = intermediate_frame_Affine*shift;
-    tf::poseEigenToMsg(intermediate_frame_Affine, intermediate_frame.pose);
-
-
-//
-//    if(shared_data().selectedHand_ == "RSoftHand"){
-//    intermediate_frame.pose.position.y-= APPROCHING_SHIFT;
-//    }
-//    if(shared_data().selectedHand_ == "LSoftHand"){
-//    intermediate_frame.pose.position.y+= APPROCHING_SHIFT;
-//    }
-    
     trajectory_utils::Cartesian intermediate;
     intermediate.distal_frame = shared_data().selectedHand_;
-    intermediate.frame = intermediate_frame;
+    intermediate.frame = shared_data().valve_approach_pose_;
     
+
+    trajectory_utils::Cartesian end;
+    end.distal_frame = shared_data().selectedHand_;
+    end.frame = shared_data().valve_pose_;
+
+
+    shared_data().last_pose_PoseStamped_ = end.frame;
+
+
     // define the first segment
     trajectory_utils::segment s1;
     s1.type.data = 0;        // min jerk traj
-    s1.T.data = TRAJ_DURATION;         // traj duration 5 second      
+    s1.T.data = TRAJ_DURATION;         // traj duration 5 second
     s1.start = start;        // start pose
-    s1.end = intermediate;            // intermediate pose     
-    
-    
-    // define the end frame
-    geometry_msgs::PoseStamped end_frame;
-    end_frame = shared_data().valve_pose_;
-    
-    
-    trajectory_utils::Cartesian end;
-    end.distal_frame = shared_data().selectedHand_;
-    end.frame = end_frame;    
+    s1.end = intermediate;            // intermediate pose
 
-    shared_data()._last_pose = boost::shared_ptr<geometry_msgs::PoseStamped>(new geometry_msgs::PoseStamped(end_frame));
-    
     // define the second segment
     trajectory_utils::segment s2;
     s2.type.data = 0;        // min jerk traj
     s2.T.data = TRAJ_DURATION;         // traj duration 5 second      
     s2.start = intermediate;        // start pose
     s2.end = end;            // end pose 
-    
-    // only one segment in this example
+
     std::vector<trajectory_utils::segment> segments;
     segments.push_back(s1);
     segments.push_back(s2);
@@ -326,8 +305,6 @@ void myfsm::ValveReach::entry(const XBot::FSM::Message& msg){
     
     // call the service
     shared_data()._client.call(srv);
-
-
 
     std::cout << "State Machine Current State: ValveReach" << std::endl;
     std::cout << "State Machine Transition: success->ValveTurn, fail->Homing" << std::endl;
@@ -377,13 +354,10 @@ void myfsm::ValveTurn::entry(const XBot::FSM::Message& msg){
     shared_data().plugin_status->setStatus("VALVETURN");
       
 
-//    std_msgs::String message;
-//    message = *shared_data()._hand_selection;
-//    std::string selectedHand;
-//    selectedHand = message.data;
+
     std::string selectedHand = shared_data().selectedHand_;
 
-    //CALL SERVICE TO MOVE
+
 
     // define the start frame 
     geometry_msgs::PoseStamped start_frame;
@@ -391,13 +365,13 @@ void myfsm::ValveTurn::entry(const XBot::FSM::Message& msg){
 
     trajectory_utils::Cartesian start;
     start.distal_frame = selectedHand;
-    start.frame = start_frame;
+    start.frame = shared_data().valve_pose_;
     
     // define the end frame
     double rot = M_PI_2;
-    if(selectedHand == "LSoftHand"){
-            rot = -M_PI_2;
-    }
+
+
+
     KDL::Frame end_frame_kdl;
     end_frame_kdl.Identity();
     end_frame_kdl.M = end_frame_kdl.M.Quaternion(start_frame.pose.orientation.x,
