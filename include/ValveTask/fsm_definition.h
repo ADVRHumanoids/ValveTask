@@ -46,9 +46,9 @@
 
 
 #define TRAJ_DURATION 5
-#define APPROCHING_SHIFT 0.1
-#define RETREAT_SHIFT 0.1
-#define VALVE_RADIUSE 0.2
+#define APPROCHING_SHIFT 0.15
+#define RETREAT_SHIFT 0.3
+#define VALVE_RADIUSE 0.3
 
 #define CENTER_SHIFT 0.2
 
