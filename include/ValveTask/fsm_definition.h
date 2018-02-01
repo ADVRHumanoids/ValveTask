@@ -50,7 +50,6 @@
 #define RETREAT_SHIFT 0.3
 #define VALVE_RADIUSE 0.3
 
-#define CENTER_SHIFT 0.2
 
 
 namespace myfsm {

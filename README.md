@@ -55,7 +55,7 @@ rostopic pub /valve_pose geometry_msgs/PoseStamped "
     position:
       x: 0.8
       y: -0.4
-      z: 1.40
+      z: 1.50
     orientation:
       x: 0.0
       y: -0.7071070192004544
