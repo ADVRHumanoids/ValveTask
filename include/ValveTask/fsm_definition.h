@@ -233,8 +233,57 @@ namespace myfsm {
         double handel_length_ = 0.3;
         Eigen::Vector3d valve_center_position_wrt_base_ = Eigen::Vector3d(0.1, 0.0, 1.2);
 
-        const std::string world_frame_ = "world_odom";
-        const std::string left_camera_frame_ = "multisense/left_camera_optical_frame";
+
+
+        geometry_msgs::PoseStamped valve_pose_camera_to_world_odom(geometry_msgs::PoseStamped pose_stamped){
+
+            // valve_pose_wrt_camera -> valve_pose_wrt_worldOdom
+            tf::Transform tf_cam_to_obj;
+            geometry_msgs::Pose temp_pose;
+            temp_pose.position = pose_stamped.pose.position;
+            temp_pose.orientation = pose_stamped.pose.orientation;
+            tf::poseMsgToTF(temp_pose, tf_cam_to_obj);
+            geometry_msgs::Transform geo_trs_cam_to_obj;
+            tf::transformTFToMsg(tf_cam_to_obj, geo_trs_cam_to_obj);
+            Eigen::Affine3d eigen_cam_to_obj;
+            tf::transformMsgToEigen(geo_trs_cam_to_obj, eigen_cam_to_obj);
+
+            // get transformation from world to cam
+            Eigen::Affine3d eigen_world_to_cam;
+            //tf.getTransformTf("world_odom", "multisense/left_camera_optical_frame", world_to_cam); // wrong order
+            //tf.getTransformTf("multisense/left_camera_optical_frame", "world_odom", world_to_cam); // ok
+            tf_.getTransformTf("multisense/left_camera_optical_frame", "world_odom", eigen_world_to_cam);
+
+            // get final world to object transform
+            Eigen::Affine3d eigen_world_to_object;
+            eigen_world_to_object = eigen_world_to_cam * eigen_cam_to_obj;
+
+            // convert eign to msg pose
+            geometry_msgs::Pose geo_pose_end_grasp_pose;
+            tf::poseEigenToMsg (eigen_world_to_object, geo_pose_end_grasp_pose);
+
+            // keep the position only
+            geometry_msgs::PoseStamped geo_posestamped_grasp_pose;
+            geo_posestamped_grasp_pose.pose.position = geo_pose_end_grasp_pose.position;
+            std::cout << "--- valve_pose_ position: " << geo_posestamped_grasp_pose.pose.position.x << " "
+                      << geo_posestamped_grasp_pose.pose.position.y << " "
+                      << geo_posestamped_grasp_pose.pose.position.z << std::endl;
+
+
+            geometry_msgs::PoseStamped return_pose_stamped;
+
+            return_pose_stamped.pose.position.x = geo_posestamped_grasp_pose.pose.position.x;
+            return_pose_stamped.pose.position.y = geo_posestamped_grasp_pose.pose.position.y;
+            return_pose_stamped.pose.position.z = geo_posestamped_grasp_pose.pose.position.z;
+
+            return_pose_stamped.pose.orientation.x = 0;
+            return_pose_stamped.pose.orientation.y = -0.7071;  // rotate 270 along y axis - "sidegrasp" pose
+            return_pose_stamped.pose.orientation.z = 0;
+            return_pose_stamped.pose.orientation.w = 0.7071;
+
+            return return_pose_stamped;
+        }
+
 
         void calcValveKeyPoses() {
 
