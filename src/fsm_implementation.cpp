@@ -152,11 +152,69 @@ void myfsm::ValveReach::entry(const XBot::FSM::Message &msg) {
 
     shared_data().plugin_status->setStatus("VALVEREACH");
 
-    // blocking call: wait for a pose on topic debris_pose
-    std::cout << "Please define the pose of the valve!" << std::endl;
+//    // blocking call: wait for a pose on topic debris_pose
+//    std::cout << "Please define the pose of the valve!" << std::endl;
+//    geometry_msgs::PoseStampedConstPtr temp;
+//    temp = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("valve_pose");
+//    shared_data().valve_pose_ = *temp;
+
+
     geometry_msgs::PoseStampedConstPtr temp;
-    temp = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("valve_pose");
-    shared_data().valve_pose_ = *temp;
+    temp = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("valve_pose_wrt_camera");
+    shared_data().valve_pose_wrt_camera_ = *temp;
+
+
+    // valve_pose_wrt_camera -> valve_pose_wrt_worldOdom
+    tf::Transform tf_cam_to_obj;
+    geometry_msgs::Pose temp_pose;
+    temp_pose.position = shared_data().valve_pose_wrt_camera_.pose.position;
+    temp_pose.orientation = shared_data().valve_pose_wrt_camera_.pose.orientation;
+    tf::poseMsgToTF(temp_pose, tf_cam_to_obj);
+    geometry_msgs::Transform geo_trs_cam_to_obj;
+    tf::transformTFToMsg(tf_cam_to_obj, geo_trs_cam_to_obj);
+    Eigen::Affine3d eigen_cam_to_obj;
+    tf::transformMsgToEigen(geo_trs_cam_to_obj, eigen_cam_to_obj);
+
+    // get transformation from world to cam
+    Eigen::Affine3d eigen_world_to_cam;
+    //tf.getTransformTf("world_odom", "multisense/left_camera_optical_frame", world_to_cam); // wrong order
+    //tf.getTransformTf("multisense/left_camera_optical_frame", "world_odom", world_to_cam); // ok
+    tf.getTransformTf(shared_data().left_camera_frame_, shared_data().world_frame_, eigen_world_to_cam);
+
+    // get final world to object transform
+    Eigen::Affine3d eigen_world_to_object;
+    eigen_world_to_object = eigen_world_to_cam * eigen_cam_to_obj;
+
+    // convert eign to msg pose
+    geometry_msgs::Pose geo_pose_end_grasp_pose;
+    tf::poseEigenToMsg (eigen_world_to_object, geo_pose_end_grasp_pose);
+
+    // keep the position only
+    geometry_msgs::PoseStamped geo_posestamped_grasp_pose;
+    geo_posestamped_grasp_pose.pose.position = geo_pose_end_grasp_pose.position;
+    std::cout << "--- valve_pose_ position: " << geo_posestamped_grasp_pose.pose.position.x << " "
+              << geo_posestamped_grasp_pose.pose.position.y << " "
+              << geo_posestamped_grasp_pose.pose.position.z << std::endl;
+
+
+
+    shared_data().valve_pose_.pose.position.x = geo_posestamped_grasp_pose.pose.position.x;
+    shared_data().valve_pose_.pose.position.y = geo_posestamped_grasp_pose.pose.position.y;
+    shared_data().valve_pose_.pose.position.z = geo_posestamped_grasp_pose.pose.position.z;
+
+    shared_data().valve_pose_.pose.orientation.x = 0;
+    shared_data().valve_pose_.pose.orientation.y = -0.7071;  // rotate 270 along y axis - "sidegrasp" pose
+    shared_data().valve_pose_.pose.orientation.z = 0;
+    shared_data().valve_pose_.pose.orientation.w = 0.7071;
+
+
+
+    // debug
+    shared_data().valve_pose_.pose.position.x = 0.8;
+    shared_data().valve_pose_.pose.position.y =  -0.4;
+    shared_data().valve_pose_.pose.position.z = 1.5;
+
+
 
 
     shared_data().calcValveKeyPoses();

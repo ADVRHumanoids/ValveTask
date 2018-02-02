@@ -212,6 +212,9 @@ namespace myfsm {
 
 
         // define a bunch of key poses based on valve model pose
+        geometry_msgs::PoseStamped valve_pose_wrt_camera_;
+
+
         geometry_msgs::PoseStamped valve_pose_;
         geometry_msgs::PoseStamped valve_approach_pose_;
         geometry_msgs::PoseStamped valve_turned_pose_;
@@ -230,6 +233,8 @@ namespace myfsm {
         double handel_length_ = 0.3;
         Eigen::Vector3d valve_center_position_wrt_base_ = Eigen::Vector3d(0.1, 0.0, 1.2);
 
+        const std::string world_frame_ = "world_odom";
+        const std::string left_camera_frame_ = "multisense/left_camera_optical_frame";
 
         void calcValveKeyPoses() {
 
